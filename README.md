@@ -35,6 +35,10 @@ Like the request body, the response body has no serialization either.
 # shim that responds to #send_string and #recv_string.
 require 'ffi-rzmq'
 
+context = ZMQ::Context.new
+socket  = context.socket ZMQ::REQ
+socket.connect 'tcp://127.0.0.1:5555'
+
 conn = Faraday.new do |builder|
   builder.adapter :zeromq, socket
 end
