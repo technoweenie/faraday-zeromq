@@ -12,10 +12,10 @@ Gem::Specification.new do |s|
   ## Leave these as is they will be modified for you by the rake gemspec task.
   ## If your rubyforge_project name is different, then edit it and comment out
   ## the sub! line in the Rakefile
-  s.name              = 'NAME'
-  s.version           = '0.0'
-  s.date              = '2010-01-01'
-  s.rubyforge_project = 'NAME'
+  s.name              = 'faraday-zeromq'
+  s.version           = '0.0.1'
+  s.date              = '2012-09-26'
+  s.rubyforge_project = 'faraday-zeromq'
 
   ## Make sure your summary is short. The description may be as long
   ## as you like.
@@ -35,7 +35,7 @@ Gem::Specification.new do |s|
 
   ## List your runtime dependencies here. Runtime dependencies are those
   ## that are needed for an end user to actually USE your code.
-  s.add_dependency('faraday', '~> 0.8.5')
+  s.add_dependency('faraday', '~> 0.8.4')
   s.add_dependency('msgpack')
 
   ## List your development dependencies here. Development dependencies are
@@ -46,7 +46,19 @@ Gem::Specification.new do |s|
   ## contents of your Git repository via the gemspec task. DO NOT REMOVE
   ## THE MANIFEST COMMENTS, they are used as delimiters by the task.
   # = MANIFEST =
-  s.files = %w[]
+  s.files = %w[
+    README.md
+    Rakefile
+    examples/Benchmarks.md
+    examples/web_server.js
+    examples/web_server.rb
+    examples/zeromq_server.js
+    examples/zeromq_server.py
+    examples/zeromq_server.rb
+    faraday-zeromq.gemspec
+    lib/faraday-zeromq.rb
+    test/adapter_test.rb
+  ]
   # = MANIFEST =
 
   ## Test files will be grabbed from the file list. Make sure the path glob
