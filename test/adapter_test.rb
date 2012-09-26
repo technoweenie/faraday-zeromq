@@ -52,8 +52,9 @@ class AdapterTest < Test::Unit::TestCase
     params, flag = socket.sent.shift
     params = MessagePack.unpack params
 
-    assert_equal 'post',       params.shift
-    assert_equal '/a?b=c',     params.shift
+    assert_equal 'post', params.shift
+    assert_equal '/a', params.shift
+    assert_equal({'b' => 'c'}, params.shift)
     assert_equal 'text/plain', params.shift['Content-Type']
     assert_equal 1, flag
     assert_equal ['body'.to_msgpack, 0], socket.sent.shift

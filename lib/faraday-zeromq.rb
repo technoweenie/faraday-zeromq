@@ -15,10 +15,10 @@ module Faraday
       def call(env)
         path = env[:url].path
         if query = env[:url].query
-          path << "?#{query}"
+          query = Faraday::Utils.parse_query(query)
         end
 
-        meta = [env[:method], path, env[:request_headers]].to_msgpack
+        meta = [env[:method], path, query, env[:request_headers]].to_msgpack
         @socket.send_string(meta, ZMQ::SNDMORE)
         @socket.send_string(env[:body].to_msgpack)
 
