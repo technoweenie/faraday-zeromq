@@ -1,10 +1,10 @@
-require 'yajl'
+require 'msgpack'
 
 module Faraday
   class Adapter
-    register_lookup_modules :zeromq => :ZeroMQ
+    register_middleware :zeromq => :ZeroMQ
 
-    class ZeroMQ < Adapter 
+    class ZeroMQ < Adapter
       VERSION = "0.0.1"
 
       def initialize(app, socket)
@@ -18,19 +18,20 @@ module Faraday
           path << "?#{query}"
         end
 
-        @socket.send_string Yajl.dump([
-          env[:method], path, env[:request_headers]]), ZMQ::SNDMORE
-        @socket.send_string env[:body]
+        meta = [env[:method], path, env[:request_headers]].to_msgpack
+        @socket.send_string(meta, ZMQ::SNDMORE)
+        @socket.send_string(env[:body].to_msgpack)
 
-        @socket.recv_string meta=''
-        @socket.recv_string body=''
+        @socket.recv_string(meta='')
+        @socket.recv_string(body='')
 
-        status, headers = Yajl.load(meta)
+        status, headers = MessagePack.unpack(meta)
 
-        save_response(env, status.to_i, body, headers)
+        save_response(env, status.to_i, MessagePack.unpack(body), headers)
 
         @app.call env
       end
     end
   end
 end
+
