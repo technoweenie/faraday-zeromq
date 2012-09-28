@@ -1,5 +1,3 @@
-require 'msgpack'
-
 module Faraday
   class Adapter
     register_middleware :zeromq => :ZeroMQ
@@ -7,9 +5,10 @@ module Faraday
     class ZeroMQ < Adapter
       VERSION = "0.0.1"
 
-      def initialize(app, socket)
+      def initialize(app, socket, serializer)
         super app
         @socket = socket
+        @serializer = serializer
       end
 
       def call(env)
@@ -18,16 +17,16 @@ module Faraday
           query = Faraday::Utils.parse_query(query)
         end
 
-        meta = [env[:method], path, query, env[:request_headers]].to_msgpack
-        @socket.send_string(meta, ZMQ::SNDMORE)
-        @socket.send_string(env[:body].to_msgpack)
+        meta = [env[:method], path, query, env[:request_headers]]
+        @socket.send_string(@serializer.dump(meta), ZMQ::SNDMORE)
+        @socket.send_string(@serializer.dump(env[:body]))
 
         @socket.recv_string(meta='')
         @socket.recv_string(body='')
 
-        status, headers = MessagePack.unpack(meta)
+        status, headers = @serializer.load(meta)
 
-        save_response(env, status.to_i, MessagePack.unpack(body), headers)
+        save_response(env, status.to_i, @serializer.load(body), headers)
 
         @app.call env
       end

@@ -1,5 +1,6 @@
 require 'test/unit'
 require 'faraday'
+require 'yaml'
 require File.expand_path("../../lib/faraday-zeromq", __FILE__)
 
 module ZMQ
@@ -13,7 +14,7 @@ class AdapterTest < Test::Unit::TestCase
     def initialize(responses)
       @sent      = []
       @responses = responses.empty? ? [[200, {}], :ok] : responses
-      @responses.map!(&:to_msgpack)
+      @responses.map! { |r| YAML.dump(r) }
     end
 
     def send_string(str, flags = 0)
@@ -29,7 +30,7 @@ class AdapterTest < Test::Unit::TestCase
     conn = build_connection
     res = conn.get '/'
     assert_equal 200,  res.status
-    assert_equal 'ok', res.body
+    assert_equal :ok, res.body
   end
 
   def test_handle_custom_response_headers
@@ -50,14 +51,14 @@ class AdapterTest < Test::Unit::TestCase
     end
 
     params, flag = socket.sent.shift
-    params = MessagePack.unpack params
+    params = YAML.load params
 
-    assert_equal 'post', params.shift
+    assert_equal :post, params.shift
     assert_equal '/a', params.shift
     assert_equal({'b' => 'c'}, params.shift)
     assert_equal 'text/plain', params.shift['Content-Type']
     assert_equal 1, flag
-    assert_equal ['body'.to_msgpack, 0], socket.sent.shift
+    assert_equal [YAML.dump('body'), 0], socket.sent.shift
 
     assert_equal 200, res.status
   end
@@ -68,7 +69,7 @@ class AdapterTest < Test::Unit::TestCase
 
   def build_connection(socket = build_socket)
     Faraday.new do |builder|
-      builder.adapter :zeromq, socket
+      builder.adapter :zeromq, socket, YAML
     end
   end
 end
