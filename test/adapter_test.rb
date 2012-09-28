@@ -13,8 +13,7 @@ class AdapterTest < Test::Unit::TestCase
 
     def initialize(responses)
       @sent      = []
-      @responses = responses.empty? ? [[200, {}], :ok] : responses
-      @responses.map! { |r| YAML.dump(r) }
+      @responses = responses.empty? ? [YAML.dump([200, {}]), 'ok'] : responses
     end
 
     def send_string(str, flags = 0)
@@ -30,7 +29,7 @@ class AdapterTest < Test::Unit::TestCase
     conn = build_connection
     res = conn.get '/'
     assert_equal 200,  res.status
-    assert_equal :ok, res.body
+    assert_equal 'ok', res.body
   end
 
   def test_handle_custom_response_headers
@@ -58,13 +57,13 @@ class AdapterTest < Test::Unit::TestCase
     assert_equal({'b' => 'c'}, params.shift)
     assert_equal 'text/plain', params.shift['Content-Type']
     assert_equal 1, flag
-    assert_equal [YAML.dump('body'), 0], socket.sent.shift
+    assert_equal ['body', 0], socket.sent.shift
 
     assert_equal 200, res.status
   end
 
-  def build_socket(*responses)
-    FakeSocket.new responses
+  def build_socket(meta = nil, body = nil)
+    FakeSocket.new(meta ? [YAML.dump(meta), body] : [])
   end
 
   def build_connection(socket = build_socket)

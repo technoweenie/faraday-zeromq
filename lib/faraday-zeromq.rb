@@ -19,14 +19,14 @@ module Faraday
 
         meta = [env[:method], path, query, env[:request_headers]]
         @socket.send_string(@serializer.dump(meta), ZMQ::SNDMORE)
-        @socket.send_string(@serializer.dump(env[:body]))
+        @socket.send_string(env[:body])
 
         @socket.recv_string(meta='')
         @socket.recv_string(body='')
 
         status, headers = @serializer.load(meta)
 
-        save_response(env, status.to_i, @serializer.load(body), headers)
+        save_response(env, status.to_i, body, headers)
 
         @app.call env
       end

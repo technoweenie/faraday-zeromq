@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   ## the sub! line in the Rakefile
   s.name              = 'faraday-zeromq'
   s.version           = '0.0.1'
-  s.date              = '2012-09-26'
+  s.date              = '2012-09-27'
   s.rubyforge_project = 'faraday-zeromq'
 
   ## Make sure your summary is short. The description may be as long
